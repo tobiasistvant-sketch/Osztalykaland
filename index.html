@@ -1,0 +1,1387 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Osztálykaland - Tanórai Pontgyűjtő</title>
+  <style>
+    /* CSS Variables & Global Reset */
+    :root {
+      --primary-color: #6C5CE7;
+      --primary-hover: #5A4AD1;
+      --secondary-color: #00CEC9;
+      --accent-color: #FF7675;
+      --accent-yellow: #FDCB6E;
+      --bg-gradient: linear-gradient(135deg, #a8c0ff 0%, #3f2b96 100%);
+      --card-bg: rgba(255, 255, 255, 0.92);
+      --text-color: #2D3436;
+      --font-family: 'Comic Sans MS', 'Chalkboard SE', 'Fredoka', 'Segoe UI', sans-serif;
+      --shadow: 0 8px 24px rgba(0,0,0,0.15);
+      --border-radius: 18px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: var(--font-family);
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background: #EBF2FA;
+      background-image: radial-gradient(#d1d8e0 2px, transparent 2px);
+      background-size: 24px 24px;
+      color: var(--text-color);
+      min-height: 100vh;
+      padding-bottom: 40px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Animation Canvas */
+    #animationCanvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    /* Header & Navigation */
+    header {
+      background: linear-gradient(135deg, #6C5CE7, #A29BFE);
+      color: white;
+      padding: 16px 20px;
+      border-bottom-left-radius: 24px;
+      border-bottom-right-radius: 24px;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand h1 {
+      font-size: 1.6rem;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .nav-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    /* Buttons */
+    .btn {
+      background: white;
+      color: var(--primary-color);
+      border: none;
+      padding: 10px 16px;
+      border-radius: 12px;
+      font-weight: bold;
+      font-size: 0.95rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      transition: all 0.2s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 14px rgba(0,0,0,0.15);
+    }
+
+    .btn:active {
+      transform: translateY(1px);
+    }
+
+    .btn-primary {
+      background: var(--primary-color);
+      color: white;
+    }
+
+    .btn-accent {
+      background: var(--accent-color);
+      color: white;
+    }
+
+    .btn-warning {
+      background: var(--accent-yellow);
+      color: #2d3436;
+    }
+
+    .btn-success {
+      background: #00B894;
+      color: white;
+    }
+
+    .btn-undo {
+      background: #FF9F43;
+      color: white;
+    }
+
+    .btn-undo:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    /* Layout Containers */
+    .container {
+      max-width: 1200px;
+      margin: 20px auto;
+      padding: 0 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: var(--border-radius);
+      padding: 20px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(5px);
+    }
+
+    .card-title {
+      font-size: 1.25rem;
+      margin-bottom: 14px;
+      color: var(--primary-color);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Settings Section */
+    .settings-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 16px;
+    }
+
+    .setting-item {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .setting-item label {
+      font-weight: bold;
+      color: #485460;
+    }
+
+    .setting-item select {
+      padding: 10px;
+      border-radius: 10px;
+      border: 2px solid #DCDDE1;
+      font-size: 1rem;
+      background: white;
+      cursor: pointer;
+      outline: none;
+    }
+
+    .setting-item select:focus {
+      border-color: var(--primary-color);
+    }
+
+    /* Add Student Bar & Quick Activity Buttons */
+    .action-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .add-student-form {
+      display: flex;
+      gap: 8px;
+      flex: 1;
+      min-width: 280px;
+    }
+
+    .add-student-form input {
+      flex: 1;
+      padding: 10px 14px;
+      border-radius: 12px;
+      border: 2px solid #dcdde1;
+      font-size: 1rem;
+      outline: none;
+    }
+
+    .add-student-form input:focus {
+      border-color: var(--primary-color);
+    }
+
+    .quick-activities {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .quick-act-btn {
+      background: #E1F5FE;
+      color: #0288D1;
+      border: 1px solid #B3E5FC;
+      padding: 8px 12px;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .quick-act-btn:hover {
+      background: #B3E5FC;
+      transform: translateY(-1px);
+    }
+
+    /* Student Cards Grid */
+    .students-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+      gap: 16px;
+    }
+
+    .student-card {
+      background: white;
+      border-radius: 16px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      position: relative;
+      transition: transform 0.2s, box-shadow 0.2s;
+      border: 2px solid transparent;
+    }
+
+    .student-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+      border-color: #A29BFE;
+    }
+
+    .student-avatar {
+      font-size: 2.8rem;
+      margin-bottom: 6px;
+      user-select: none;
+      filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
+    }
+
+    .student-name {
+      font-size: 1.1rem;
+      font-weight: bold;
+      color: #2d3436;
+      margin-bottom: 6px;
+      word-break: break-word;
+    }
+
+    .student-scores {
+      font-size: 0.85rem;
+      color: #636e72;
+      margin-bottom: 12px;
+    }
+
+    .student-scores .daily-score {
+      font-weight: bold;
+      color: var(--primary-color);
+      font-size: 1rem;
+    }
+
+    .point-btn-group {
+      display: flex;
+      gap: 8px;
+      width: 100%;
+    }
+
+    .plus-one-btn {
+      flex: 1;
+      background: linear-gradient(135deg, #00B894, #55E6C1);
+      color: white;
+      border: none;
+      padding: 10px 0;
+      border-radius: 12px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0, 184, 148, 0.3);
+      transition: all 0.15s ease;
+    }
+
+    .plus-one-btn:active {
+      transform: scale(0.92);
+    }
+
+    .delete-student-btn {
+      background: #FFEaa7;
+      color: #d63031;
+      border: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      opacity: 0.3;
+      transition: opacity 0.2s;
+    }
+
+    .student-card:hover .delete-student-btn {
+      opacity: 1;
+    }
+
+    /* World Section & Visualizations */
+    .world-container {
+      background: white;
+      border-radius: var(--border-radius);
+      padding: 20px;
+      box-shadow: var(--shadow);
+      min-height: 320px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .world-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    /* World 1: Ösvény a kastélyhoz */
+    .world-castle {
+      background: linear-gradient(to bottom, #81ECEC, #74B9FF);
+      border-radius: 16px;
+      padding: 20px;
+      position: relative;
+      min-height: 260px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      justify-content: space-around;
+      overflow-x: auto;
+    }
+
+    .castle-destination {
+      position: absolute;
+      right: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 4.5rem;
+      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
+      z-index: 2;
+    }
+
+    .lane {
+      display: flex;
+      align-items: center;
+      background: rgba(255,255,255,0.4);
+      border-radius: 30px;
+      padding: 6px 12px;
+      position: relative;
+      margin-right: 80px;
+      height: 48px;
+    }
+
+    .lane-track {
+      position: absolute;
+      left: 120px;
+      right: 10px;
+      height: 6px;
+      background: rgba(255,255,255,0.7);
+      border-radius: 3px;
+    }
+
+    .lane-student-info {
+      width: 100px;
+      font-weight: bold;
+      font-size: 0.9rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      z-index: 2;
+    }
+
+    .lane-avatar {
+      position: absolute;
+      font-size: 2rem;
+      transition: left 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      top: -6px;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+      z-index: 3;
+    }
+
+    /* World 2: Fára mászás */
+    .world-tree {
+      background: linear-gradient(to bottom, #81ECEC 0%, #A8E6CF 60%, #56AB2F 100%);
+      border-radius: 16px;
+      padding: 20px;
+      min-height: 380px;
+      position: relative;
+      display: flex;
+      justify-content: center;
+    }
+
+    .tree-trunk {
+      width: 80px;
+      background: #8D6E63;
+      border-radius: 12px;
+      height: 100%;
+      position: absolute;
+      bottom: 0;
+      box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
+    }
+
+    .tree-crown {
+      position: absolute;
+      top: 10px;
+      font-size: 4rem;
+      z-index: 2;
+    }
+
+    .tree-climbers {
+      position: relative;
+      width: 100%;
+      max-width: 600px;
+      height: 320px;
+      z-index: 3;
+    }
+
+    .climber-item {
+      position: absolute;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255,255,255,0.85);
+      padding: 4px 10px;
+      border-radius: 20px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+      transition: bottom 0.5s ease, left 0.5s ease;
+      font-size: 0.85rem;
+      font-weight: bold;
+    }
+
+    /* World 3: Bolygógyűjtés */
+    .world-planets {
+      background: linear-gradient(to bottom, #0f0c29, #302b63, #24243e);
+      border-radius: 16px;
+      padding: 20px;
+      min-height: 320px;
+      color: white;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 16px;
+    }
+
+    .planet-basket {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 16px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      backdrop-filter: blur(4px);
+    }
+
+    .basket-title {
+      font-weight: bold;
+      margin-bottom: 8px;
+      font-size: 0.95rem;
+      text-align: center;
+    }
+
+    .basket-planets-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      justify-content: center;
+      min-height: 60px;
+      align-content: flex-start;
+    }
+
+    .planet-icon {
+      font-size: 1.4rem;
+      animation: floatPlanet 3s ease-in-out infinite alternate;
+    }
+
+    @keyframes floatPlanet {
+      0% { transform: translateY(0px) rotate(0deg); }
+      100% { transform: translateY(-4px) rotate(10deg); }
+    }
+
+    /* Modals */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-content {
+      background: white;
+      border-radius: var(--border-radius);
+      padding: 24px;
+      max-width: 500px;
+      width: 90%;
+      max-height: 85vh;
+      overflow-y: auto;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+      position: relative;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .modal-header h2 {
+      color: var(--primary-color);
+      font-size: 1.3rem;
+    }
+
+    .close-modal-btn {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: #999;
+    }
+
+    .summary-list {
+      list-style: none;
+      margin-bottom: 16px;
+    }
+
+    .summary-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px;
+      border-bottom: 1px solid #eee;
+      font-size: 1rem;
+    }
+
+    .summary-total {
+      background: #F0EDFF;
+      padding: 12px;
+      border-radius: 12px;
+      font-weight: bold;
+      color: var(--primary-color);
+      display: flex;
+      justify-content: space-between;
+      font-size: 1.1rem;
+    }
+
+    /* Hidden File Input for Import */
+    #importFileInput {
+      display: none;
+    }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 30px;
+      color: #a4b0be;
+      font-size: 1.1rem;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 600px) {
+      header {
+        padding: 12px 14px;
+      }
+      .brand h1 {
+        font-size: 1.3rem;
+      }
+      .btn {
+        padding: 8px 12px;
+        font-size: 0.85rem;
+      }
+      .students-grid {
+        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Fullscreen Canvas for Reward Animations -->
+  <canvas id="animationCanvas"></canvas>
+
+  <!-- Navigation Header -->
+  <header>
+    <div class="brand">
+      <span>🏰</span>
+      <h1>Osztálykaland</h1>
+    </div>
+    <div class="nav-buttons">
+      <button class="btn btn-undo" id="undoBtn" disabled title="Utolsó pontadás visszavonása">↩️ Visszavonás</button>
+      <button class="btn" id="summaryBtn">📊 Napi összesítő</button>
+      <button class="btn btn-warning" id="newDayBtn">☀️ Új nap</button>
+      <button class="btn" id="settingsToggleBtn">⚙️ Beállítások</button>
+      <button class="btn btn-success" id="exportBtn">💾 Export</button>
+      <button class="btn" id="importBtn">📂 Import</button>
+      <input type="file" id="importFileInput" accept=".json">
+    </div>
+  </header>
+
+  <div class="container">
+
+    <!-- Settings Card (Collapsible) -->
+    <div class="card" id="settingsCard">
+      <div class="card-title">⚙️ Beállítások</div>
+      <div class="settings-grid">
+        <div class="setting-item">
+          <label for="avatarSetSelect">Tanulók megjelenése:</label>
+          <select id="avatarSetSelect">
+            <option value="animals">🐱 Kisállatok</option>
+            <option value="flowers">🌸 Virágok</option>
+            <option value="shapes">⭐ Színes formák</option>
+          </select>
+        </div>
+        <div class="setting-item">
+          <label for="animationSelect">Jutalom-animáció:</label>
+          <select id="animationSelect">
+            <option value="confetti">🎊 Konfetti</option>
+            <option value="petals">🌸 Virágszirom-eső</option>
+            <option value="stars">✨ Csillagfény</option>
+          </select>
+        </div>
+        <div class="setting-item">
+          <label for="worldSelect">Világ (Előrehaladás):</label>
+          <select id="worldSelect">
+            <option value="castle">🏰 Ösvény a kastély felé</option>
+            <option value="tree">🌳 Fára mászás</option>
+            <option value="planets">🪐 Bolygógyűjtés</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Activity & Group Points Bar -->
+    <div class="card">
+      <div class="card-title">⚡ Gyors tevékenység / Csoportos pontadás</div>
+      <div class="action-bar">
+        <div class="quick-activities">
+          <button class="quick-act-btn" data-act="Aktív órai munka">💡 Aktív munka (+1)</button>
+          <button class="quick-act-btn" data-act="Segítőkészség">🤝 Segítőkészség (+1)</button>
+          <button class="quick-act-btn" data-act="Szorgalom">⭐ Szorgalom (+1)</button>
+          <button class="btn btn-primary" id="pointAllBtn">🌟 Mindenkinek (+1)</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add Student Form & Students Grid -->
+    <div class="card">
+      <div class="card-title" style="justify-content: space-between;">
+        <span>👧👦 Tanulók</span>
+        <form class="add-student-form" id="addStudentForm" style="max-width: 350px;">
+          <input type="text" id="studentNicknameInput" placeholder="Tanuló beceneve..." required maxlength="20">
+          <button type="submit" class="btn btn-primary">➕ Hozzáadás</button>
+        </form>
+      </div>
+
+      <div class="students-grid" id="studentsGrid">
+        <!-- Dynamic Student Cards -->
+      </div>
+      <div id="emptyStudentsNotice" class="empty-state" style="display: none;">
+        Még nincsenek tanulók hozzáadva. Írd be felül a becenevét és kattints a <b>Hozzáadás</b> gombra!
+      </div>
+    </div>
+
+    <!-- Interactive World Visualization Section -->
+    <div class="world-container">
+      <div class="world-header">
+        <div class="card-title" style="margin-bottom:0;" id="worldTitle">🏰 Kalandos Világ</div>
+        <span style="font-size: 0.9rem; color: #636e72;">Az előrehaladás automatikusan skálázódik pontjaik alapján!</span>
+      </div>
+      <div id="worldVisualContent">
+        <!-- Dynamic World Rendering -->
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Napi Összesítő Modal -->
+  <div class="modal-overlay" id="summaryModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>📊 Aznapi Összesítő</h2>
+        <button class="close-modal-btn" id="closeSummaryBtn">&times;</button>
+      </div>
+      <ul class="summary-list" id="summaryList">
+        <!-- Dynamic list of daily scores -->
+      </ul>
+      <div class="summary-total">
+        <span>Osztály aznapi összes pontja:</span>
+        <span id="summaryTotalPoints">0 pont</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Application Logic JS -->
+  <script>
+    /* Global Application State */
+    const APP_STORAGE_KEY = 'osztalykaland_state_v1';
+
+    const AVATAR_SETS = {
+      animals: ['🐱', '🐶', '🐰', '🦊', '🐻', '🐼', '🐧', '🦉', '🐯', '🦁', '🐸', '🦄'],
+      flowers: ['🌸', '🌻', '🌷', '🌹', '🌺', '🌼', '🪷', '💐', '🌾', '🌱', '☘️', '🍃'],
+      shapes: ['⭐', '🔴', '🔷', '🟩', '🟡', '💜', '💎', '🌙', '❤️', '🔺', '💠', '🟧']
+    };
+
+    const PLANET_ICONS = ['🪐', '🌕', '🌍', '☄️', '⭐', '☀️', '🌌', '🛸', '🛰️'];
+
+    let state = {
+      settings: {
+        avatarSet: 'animals',
+        animation: 'confetti',
+        world: 'castle'
+      },
+      students: [], // { id, name, dailyScore, totalScore, avatarIndex }
+      history: []   // history stack for undo
+    };
+
+    /* DOM Element References */
+    const avatarSetSelect = document.getElementById('avatarSetSelect');
+    const animationSelect = document.getElementById('animationSelect');
+    const worldSelect = document.getElementById('worldSelect');
+    const studentsGrid = document.getElementById('studentsGrid');
+    const addStudentForm = document.getElementById('addStudentForm');
+    const studentNicknameInput = document.getElementById('studentNicknameInput');
+    const emptyStudentsNotice = document.getElementById('emptyStudentsNotice');
+    const undoBtn = document.getElementById('undoBtn');
+    const summaryBtn = document.getElementById('summaryBtn');
+    const newDayBtn = document.getElementById('newDayBtn');
+    const exportBtn = document.getElementById('exportBtn');
+    const importBtn = document.getElementById('importBtn');
+    const importFileInput = document.getElementById('importFileInput');
+    const pointAllBtn = document.getElementById('pointAllBtn');
+    const settingsToggleBtn = document.getElementById('settingsToggleBtn');
+    const settingsCard = document.getElementById('settingsCard');
+    const worldTitle = document.getElementById('worldTitle');
+    const worldVisualContent = document.getElementById('worldVisualContent');
+    const summaryModal = document.getElementById('summaryModal');
+    const closeSummaryBtn = document.getElementById('closeSummaryBtn');
+    const summaryList = document.getElementById('summaryList');
+    const summaryTotalPoints = document.getElementById('summaryTotalPoints');
+
+    /* LocalStorage Initialization & Persistence */
+    function loadState() {
+      try {
+        const saved = localStorage.getItem(APP_STORAGE_KEY);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          state.settings = parsed.settings || state.settings;
+          state.students = parsed.students || [];
+          state.history = []; // History is reset on reload
+        }
+      } catch (e) {
+        console.error('Hiba az adatok betöltésekor:', e);
+      }
+    }
+
+    function saveState() {
+      try {
+        localStorage.setItem(APP_STORAGE_KEY, JSON.stringify({
+          settings: state.settings,
+          students: state.students
+        }));
+      } catch (e) {
+        console.error('Hiba az adatok mentésekor:', e);
+      }
+      updateUndoButton();
+    }
+
+    /* Undo Stack Management */
+    function pushHistory() {
+      // Deep clone current students state
+      const snapshot = JSON.parse(JSON.stringify(state.students));
+      state.history.push(snapshot);
+      if (state.history.length > 20) {
+        state.history.shift(); // Keep maximum 20 undo steps
+      }
+      updateUndoButton();
+    }
+
+    function undo() {
+      if (state.history.length === 0) return;
+      const previousStudents = state.history.pop();
+      state.students = previousStudents;
+      saveState();
+      renderAll();
+    }
+
+    function updateUndoButton() {
+      undoBtn.disabled = state.history.length === 0;
+    }
+
+    /* Student Management */
+    function addStudent(name) {
+      pushHistory();
+      const newStudent = {
+        id: 's_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+        name: name.trim(),
+        dailyScore: 0,
+        totalScore: 0,
+        avatarIndex: state.students.length % 12
+      };
+      state.students.push(newStudent);
+      saveState();
+      renderAll();
+    }
+
+    function removeStudent(id) {
+      if (!confirm('Biztosan törölni szeretnéd ezt a tanulót?')) return;
+      pushHistory();
+      state.students = state.students.filter(s => s.id !== id);
+      saveState();
+      renderAll();
+    }
+
+    function addPointsToStudent(id, points = 1) {
+      pushHistory();
+      const student = state.students.find(s => s.id === id);
+      if (student) {
+        student.dailyScore += points;
+        student.totalScore += points;
+        triggerRewardAnimation();
+        saveState();
+        renderAll();
+      }
+    }
+
+    function addPointsToAll(points = 1) {
+      if (state.students.length === 0) return;
+      pushHistory();
+      state.students.forEach(student => {
+        student.dailyScore += points;
+        student.totalScore += points;
+      });
+      triggerRewardAnimation();
+      saveState();
+      renderAll();
+    }
+
+    function resetNewDay() {
+      if (state.students.length === 0) {
+        alert('Nincs egyetlen tanuló sem az osztályban.');
+        return;
+      }
+      if (confirm('Új nap indítása?\n\n- A tanulók aznapi pontszámai nullázódnak.\n- A tanulók névsora és ÖSSZESÍTETT pontjaik megmaradnak!')) {
+        pushHistory();
+        state.students.forEach(student => {
+          student.dailyScore = 0;
+        });
+        saveState();
+        renderAll();
+        alert('Az aznapi pontok sikeresen nullázva lettek! Jó tanulást ma is!');
+      }
+    }
+
+    /* UI Rendering Functions */
+    function getAvatarSymbol(avatarIndex) {
+      const currentSet = AVATAR_SETS[state.settings.avatarSet] || AVATAR_SETS.animals;
+      return currentSet[avatarIndex % currentSet.length];
+    }
+
+    function renderStudents() {
+      studentsGrid.innerHTML = '';
+      if (state.students.length === 0) {
+        emptyStudentsNotice.style.display = 'block';
+        return;
+      }
+      emptyStudentsNotice.style.display = 'none';
+
+      state.students.forEach(student => {
+        const card = document.createElement('div');
+        card.className = 'student-card';
+        card.innerHTML = `
+          <button class="delete-student-btn" title="Törlés">&times;</button>
+          <div class="student-avatar">${getAvatarSymbol(student.avatarIndex)}</div>
+          <div class="student-name">${escapeHTML(student.name)}</div>
+          <div class="student-scores">
+            Ma: <span class="daily-score">${student.dailyScore}</span> pont<br>
+            Összesen: <b>${student.totalScore}</b>
+          </div>
+          <div class="point-btn-group">
+            <button class="plus-one-btn">+1</button>
+          </div>
+        `;
+
+        card.querySelector('.plus-one-btn').addEventListener('click', () => {
+          addPointsToStudent(student.id, 1);
+        });
+
+        card.querySelector('.delete-student-btn').addEventListener('click', (e) => {
+          e.stopPropagation();
+          removeStudent(student.id);
+        });
+
+        studentsGrid.appendChild(card);
+      });
+    }
+
+    function renderWorld() {
+      worldVisualContent.innerHTML = '';
+      const worldType = state.settings.world;
+
+      if (worldType === 'castle') {
+        worldTitle.textContent = '🏰 Ösvény a kastély felé';
+        renderCastleWorld();
+      } else if (worldType === 'tree') {
+        worldTitle.textContent = '🌳 Fára mászás';
+        renderTreeWorld();
+      } else if (worldType === 'planets') {
+        worldTitle.textContent = '🪐 Bolygógyűjtés';
+        renderPlanetsWorld();
+      }
+    }
+
+    /* World 1: Ösvény a kastélyhoz */
+    function renderCastleWorld() {
+      const container = document.createElement('div');
+      container.className = 'world-castle';
+
+      const castleIcon = document.createElement('div');
+      castleIcon.className = 'castle-destination';
+      castleIcon.textContent = '🏰';
+      container.appendChild(castleIcon);
+
+      if (state.students.length === 0) {
+        container.innerHTML += '<div style="text-align:center; padding: 20px;">Vegyél fel tanulókat a kaland elindításához!</div>';
+        worldVisualContent.appendChild(container);
+        return;
+      }
+
+      // Calculate max total points to scale progress
+      const maxScore = Math.max(...state.students.map(s => s.totalScore), 10);
+
+      state.students.forEach(student => {
+        const lane = document.createElement('div');
+        lane.className = 'lane';
+
+        const nameSpan = document.createElement('div');
+        nameSpan.className = 'lane-student-info';
+        nameSpan.textContent = student.name;
+
+        const track = document.createElement('div');
+        track.className = 'lane-track';
+
+        // Calculate progress percentage (0% to 85%)
+        const progressPct = Math.min((student.totalScore / maxScore) * 82, 82);
+
+        const avatar = document.createElement('div');
+        avatar.className = 'lane-avatar';
+        avatar.textContent = getAvatarSymbol(student.avatarIndex);
+        avatar.style.left = `calc(110px + ${progressPct}%)`;
+        avatar.title = `${student.name}: ${student.totalScore} pont`;
+
+        lane.appendChild(nameSpan);
+        lane.appendChild(track);
+        lane.appendChild(avatar);
+        container.appendChild(lane);
+      });
+
+      worldVisualContent.appendChild(container);
+    }
+
+    /* World 2: Fára mászás */
+    function renderTreeWorld() {
+      const container = document.createElement('div');
+      container.className = 'world-tree';
+
+      container.innerHTML = `
+        <div class="tree-trunk"></div>
+        <div class="tree-crown">🌳</div>
+      `;
+
+      const climbersContainer = document.createElement('div');
+      climbersContainer.className = 'tree-climbers';
+
+      if (state.students.length === 0) {
+        worldVisualContent.appendChild(container);
+        return;
+      }
+
+      const maxScore = Math.max(...state.students.map(s => s.totalScore), 10);
+
+      state.students.forEach((student, index) => {
+        const climber = document.createElement('div');
+        climber.className = 'climber-item';
+
+        // Calculate height position percentage (10% to 80%)
+        const heightPct = 10 + Math.min((student.totalScore / maxScore) * 70, 70);
+
+        // Distribute left offset around tree center
+        const offsetLeft = 50 + (index % 2 === 0 ? -1 : 1) * (20 + (index * 12) % 100);
+
+        climber.style.bottom = `${heightPct}%`;
+        climber.style.left = `clamp(10%, ${offsetLeft}%, 75%)`;
+
+        climber.innerHTML = `
+          <span>${getAvatarSymbol(student.avatarIndex)}</span>
+          <span>${escapeHTML(student.name)} (${student.totalScore}p)</span>
+        `;
+
+        climbersContainer.appendChild(climber);
+      });
+
+      container.appendChild(climbersContainer);
+      worldVisualContent.appendChild(container);
+    }
+
+    /* World 3: Bolygógyűjtés */
+    function renderPlanetsWorld() {
+      const container = document.createElement('div');
+      container.className = 'world-planets';
+
+      if (state.students.length === 0) {
+        container.innerHTML = '<div style="grid-column: 1/-1; text-align:center; padding: 20px;">Vegyél fel tanulókat a bolygógyűjtéshez!</div>';
+        worldVisualContent.appendChild(container);
+        return;
+      }
+
+      state.students.forEach(student => {
+        const basket = document.createElement('div');
+        basket.className = 'planet-basket';
+
+        const title = document.createElement('div');
+        title.className = 'basket-title';
+        title.innerHTML = `${getAvatarSymbol(student.avatarIndex)} ${escapeHTML(student.name)}<br><small style="color:#aaa;">${student.totalScore} pont</small>`;
+
+        const planetsContainer = document.createElement('div');
+        planetsContainer.className = 'basket-planets-container';
+
+        // Display a planet icon for each point earned (up to max 30 for UI space)
+        const planetCount = Math.min(student.totalScore, 30);
+        for (let i = 0; i < planetCount; i++) {
+          const planetSpan = document.createElement('span');
+          planetSpan.className = 'planet-icon';
+          planetSpan.textContent = PLANET_ICONS[i % PLANET_ICONS.length];
+          planetSpan.style.animationDelay = `${(i * 0.2) % 2}s`;
+          planetsContainer.appendChild(planetSpan);
+        }
+
+        if (student.totalScore === 0) {
+          planetsContainer.innerHTML = '<span style="font-size:0.8rem; color:#888;">Még nincs bolygó</span>';
+        }
+
+        basket.appendChild(title);
+        basket.appendChild(planetsContainer);
+        container.appendChild(basket);
+      });
+
+      worldVisualContent.appendChild(container);
+    }
+
+    function renderSummary() {
+      summaryList.innerHTML = '';
+      let totalDaily = 0;
+
+      state.students.forEach(student => {
+        totalDaily += student.dailyScore;
+        const li = document.createElement('li');
+        li.className = 'summary-item';
+        li.innerHTML = `
+          <span>${getAvatarSymbol(student.avatarIndex)} <b>${escapeHTML(student.name)}</b></span>
+          <span><b>${student.dailyScore}</b> pont</span>
+        `;
+        summaryList.appendChild(li);
+      });
+
+      if (state.students.length === 0) {
+        summaryList.innerHTML = '<li class="summary-item">Nincsenek tanulók az osztályban.</li>';
+      }
+
+      summaryTotalPoints.textContent = `${totalDaily} pont`;
+    }
+
+    function renderAll() {
+      renderStudents();
+      renderWorld();
+      updateUndoButton();
+    }
+
+    function escapeHTML(str) {
+      return str.replace(/[&<>'"]/g,
+        tag => ({
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          "'": '&#39;',
+          '"': '&quot;'
+        }[tag] || tag)
+      );
+    }
+
+    /* Reward Canvas Animations (Confetti, Petal rain, Starlight) */
+    const canvas = document.getElementById('animationCanvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+    let animationFrameId = null;
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    function triggerRewardAnimation() {
+      particles = [];
+      const animType = state.settings.animation;
+      const count = 70;
+
+      for (let i = 0; i < count; i++) {
+        if (animType === 'confetti') {
+          particles.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height * 0.3 - 50,
+            size: Math.random() * 8 + 4,
+            color: `hsl(${Math.random() * 360}, 100%, 60%)`,
+            vx: (Math.random() - 0.5) * 4,
+            vy: Math.random() * 4 + 2,
+            type: 'rect',
+            opacity: 1
+          });
+        } else if (animType === 'petals') {
+          particles.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height * 0.3 - 50,
+            size: Math.random() * 10 + 8,
+            symbol: ['🌸', '🌺', '🌷', '🏵️'][Math.floor(Math.random() * 4)],
+            vx: Math.sin(Math.random() * Math.PI) * 2 - 1,
+            vy: Math.random() * 2 + 1.5,
+            type: 'text',
+            opacity: 1
+          });
+        } else if (animType === 'stars') {
+          particles.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height * 0.6,
+            size: Math.random() * 16 + 10,
+            symbol: ['✨', '⭐', '🌟', '💫'][Math.floor(Math.random() * 4)],
+            vx: (Math.random() - 0.5) * 3,
+            vy: (Math.random() - 0.5) * 3,
+            type: 'text',
+            opacity: 1
+          });
+        }
+      }
+
+      if (animationFrameId) cancelAnimationFrame(animationFrameId);
+      animateParticles();
+    }
+
+    function animateParticles() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      let aliveCount = 0;
+      particles.forEach(p => {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.opacity -= 0.012;
+
+        if (p.opacity > 0) {
+          aliveCount++;
+          ctx.globalAlpha = Math.max(0, p.opacity);
+
+          if (p.type === 'rect') {
+            ctx.fillStyle = p.color;
+            ctx.fillRect(p.x, p.y, p.size, p.size);
+          } else if (p.type === 'text') {
+            ctx.font = `${p.size}px sans-serif`;
+            ctx.fillText(p.symbol, p.x, p.y);
+          }
+        }
+      });
+
+      if (aliveCount > 0) {
+        animationFrameId = requestAnimationFrame(animateParticles);
+      } else {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+    }
+
+    /* Export & Import Functions */
+    function exportJSON() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state, null, 2));
+      const downloadAnchor = document.createElement('a');
+      const dateStr = new Date().toISOString().slice(0, 10);
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", `osztalykaland_mentes_${dateStr}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+    }
+
+    function importJSON(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const imported = JSON.parse(e.target.result);
+          if (imported && imported.students && Array.isArray(imported.students)) {
+            pushHistory();
+            state.settings = imported.settings || state.settings;
+            state.students = imported.students;
+
+            // Update settings controls UI
+            avatarSetSelect.value = state.settings.avatarSet || 'animals';
+            animationSelect.value = state.settings.animation || 'confetti';
+            worldSelect.value = state.settings.world || 'castle';
+
+            saveState();
+            renderAll();
+            alert('Adatok sikeresen importálva!');
+          } else {
+            alert('Érvénytelen JSON fájlformátum!');
+          }
+        } catch (err) {
+          alert('Hiba történt a fájl beolvasása során: ' + err.message);
+        }
+      };
+      reader.readAsText(file);
+      event.target.value = ''; // Reset input
+    }
+
+    /* Event Listeners Initialization */
+    function initEventListeners() {
+      // Form add student
+      addStudentForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const name = studentNicknameInput.value.trim();
+        if (name) {
+          addStudent(name);
+          studentNicknameInput.value = '';
+          studentNicknameInput.focus();
+        }
+      });
+
+      // Settings dropdowns
+      avatarSetSelect.addEventListener('change', (e) => {
+        state.settings.avatarSet = e.target.value;
+        saveState();
+        renderAll();
+      });
+
+      animationSelect.addEventListener('change', (e) => {
+        state.settings.animation = e.target.value;
+        saveState();
+      });
+
+      worldSelect.addEventListener('change', (e) => {
+        state.settings.world = e.target.value;
+        saveState();
+        renderWorld();
+      });
+
+      // Header Actions
+      undoBtn.addEventListener('click', undo);
+
+      newDayBtn.addEventListener('click', resetNewDay);
+
+      summaryBtn.addEventListener('click', () => {
+        renderSummary();
+        summaryModal.classList.add('active');
+      });
+
+      closeSummaryBtn.addEventListener('click', () => {
+        summaryModal.classList.remove('active');
+      });
+
+      summaryModal.addEventListener('click', (e) => {
+        if (e.target === summaryModal) summaryModal.classList.remove('active');
+      });
+
+      settingsToggleBtn.addEventListener('click', () => {
+        settingsCard.style.display = settingsCard.style.display === 'none' ? 'block' : 'none';
+      });
+
+      exportBtn.addEventListener('click', exportJSON);
+
+      importBtn.addEventListener('click', () => {
+        importFileInput.click();
+      });
+
+      importFileInput.addEventListener('change', importJSON);
+
+      pointAllBtn.addEventListener('click', () => {
+        addPointsToAll(1);
+      });
+
+      // Quick Activity buttons
+      document.querySelectorAll('.quick-act-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          if (state.students.length === 0) {
+            alert('Kérlek először végy fel legalább egy tanulót!');
+            return;
+          }
+          const activity = btn.getAttribute('data-act');
+          addPointsToAll(1);
+        });
+      });
+    }
+
+    /* Initialize Application */
+    function init() {
+      loadState();
+
+      // Set initial values for controls
+      avatarSetSelect.value = state.settings.avatarSet;
+      animationSelect.value = state.settings.animation;
+      worldSelect.value = state.settings.world;
+
+      initEventListeners();
+      renderAll();
+    }
+
+    // Run when DOM is ready
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
